@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Info Lokasi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>🌍 Info Lokasi</h1>
+    <p class="sub">Cari kota, kecamatan, atau tempat apa saja</p>
+
+    <div class="search">
+      <input type="text" id="lokasi" placeholder="Contoh: Kasihan, Bantul">
+      <button id="btnCari">Cari</button>
+    </div>
+
+    <p id="status"></p>
+
+    <div id="hasil" class="hasil hidden">
+      <div><span>🏳️ Negara</span><b id="negara"></b></div>
+      <div><span>🏛️ Provinsi</span><b id="provinsi"></b></div>
+      <div><span>📍 Kecamatan</span><b id="kecamatan"></b></div>
+      <div><span>↔️ Longitude</span><b id="longitude"></b></div>
+      <div><span>↕️ Latitude</span><b id="latitude"></b></div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById("lokasi");
+    const status = document.getElementById("status");
+    const hasil = document.getElementById("hasil");
+
+    async function cari() {
+      const kota = input.value.trim();
+      if (!kota) { status.textContent = "Isi lokasi dulu ya."; return; }
+
+      status.textContent = "Mencari...";
+      hasil.classList.add("hidden");
+
+      try {
+        const res = await fetch(`/api/lokasi?kota=${encodeURIComponent(kota)}`);
+        const d = await res.json();
+        if (!res.ok) { status.textContent = d.message; return; }
+
+        for (const k of ["negara", "provinsi", "kecamatan", "longitude", "latitude"]) {
+          document.getElementById(k).textContent = d[k];
+        }
+        status.textContent = "";
+        hasil.classList.remove("hidden");
+      } catch (e) {
+        status.textContent = "Terjadi kesalahan: " + e.message;
+      }
+    }
+
+    document.getElementById("btnCari").addEventListener("click", cari);
+    input.addEventListener("keydown", e => { if (e.key === "Enter") cari(); });
+  </script>
+</body>
+</html>
